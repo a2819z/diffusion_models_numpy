@@ -1,0 +1,20 @@
+exp_name: 
+work_dir: 'work_dirs'
+
+model:
+  dims: [2, 128, 128, 2]
+  activ:
+    type: 'ReLU'
+    args:
+
+optimizer:
+  type: 'SGD'
+  args:
+    lr: 1e-3
+
+
+steps: 30000
+batch_size: 256
+
+log_freq: 1000
+save_freq: 10000
