@@ -48,7 +48,11 @@ class SimpleSampler(BaseSampler):
             # 2-2. Sampling
             ys = self.sampling(test_data, **self.cfg.sampler.run)
 
-            # 2-3. Animation
+            # 2-3. Result save
+            ax.scatter(*ys[-1].T, color='blue', alpha=0.7, edgecolor='black', s=40)
+            fig.savefig(self.cfg.work_dir / f'result_{iter_idx}.jpg')
+
+            # 2-4. Animation
             anim=make_animation(ys, gs, xx)
             if show:
                 plt.show()

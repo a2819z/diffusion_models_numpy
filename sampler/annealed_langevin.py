@@ -54,7 +54,7 @@ class AnnealedLangevinSampler(BaseSampler):
         # 2. Score matching visualization
         if test_data is not None:
             # 2-1. Gradient in each noise level
-            gs = []
+            gs = [self.log_gradient(xx, 0)]
             for noise_level in range(self.noise_step):
                 _gs = self.log_gradient(xx, noise_level)
                 gs.extend([_gs] * self.cfg.sampler.run.n_steps)
