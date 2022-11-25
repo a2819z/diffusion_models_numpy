@@ -10,10 +10,12 @@ class Adam(NN):
         self.beta2 = beta2
         self.eps = eps
 
+        self.params = None
         self.clip_norm = clip_norm
 
     def update(self, params: dict, grads: dict):
         if self.params is None:
+            self.params = {}
             self.params['t'] = 0
             self.params['m'], self.params['v'] = {}, {}
 
@@ -36,8 +38,8 @@ class Adam(NN):
             v = self.beta2 * v + (1 - self.beta2) * np.power(grads[key], 2)
 
             # Unbiasing
-            m_hat = m[key] / (1 - self.beta1 ** t)
-            v_hat = v[key] / (1 - self.beta2 ** t)
+            m_hat = m / (1 - self.beta1 ** t)
+            v_hat = v / (1 - self.beta2 ** t)
             params[key] -= self.lr * m_hat / (np.sqrt(v_hat) + self.eps)
 
             # Update optimizer's params
