@@ -1,6 +1,6 @@
 exp_name: 
 
-sigma_begin: 10
+sigma_begin: 20
 sigma_end: 1
 num_t_steps: 10
 
@@ -9,10 +9,10 @@ model:
   t_steps: 10
 
 optimizer:
-  type: 'SGD'
+  type: 'AdamW'
   args:
-    lr: 1e-3
-    #weight_decay: 0.1
+    lr: 0.001
+    weight_decay: 0.0001
 
 trainer:
   type: 'NCSNTrainer'
@@ -26,6 +26,7 @@ sampler:
   type: 'AnnealedLangevinSampler'
   run:
     n_steps: 100
+    eps: 0.1
 
 steps: 60_000
 log_freq: 10_000

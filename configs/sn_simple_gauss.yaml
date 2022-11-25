@@ -1,5 +1,7 @@
 exp_name: 
 
+sigma: 1
+
 model:
   type: 'ScoreNet'
 
@@ -19,9 +21,9 @@ data:
 sampler:
   type: 'SimpleSampler'
   run:
-    n_steps: 1000
+    n_steps: 100
     eps: 0.1
 
-steps: 10_000
-log_freq: 1_000
-save_freq: 1_000
+steps: 60_000
+log_freq: 6_000
+save_freq: 6_000
