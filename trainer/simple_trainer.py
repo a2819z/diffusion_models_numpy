@@ -40,13 +40,13 @@ class SimpleTrainer(BaseTrainer):
             if (i+1) % self.cfg.log_freq == 0:
                 loss = self.model.loss(perturbed_samples, target)
                 self.logging(i, loss, elapsed)
-                self.sampler.visualization(train_data, iter_idx=i)
+                self.sampler.visualization(train_data, iter_idx=i+1)
                 if loss < best:
                     best = loss
                     model_state_dict = self.model.state_dict()
                     optim_state_dict = self.optimizer.state_dict()
                     self.save_checkpoint(self.cfg.work_dir / 'checkpoint', i+1, model_state_dict, optim_state_dict, best=True)
-                    #self.sampler.visualization(train_data, test_data=test_data, iter_idx=i, show=False)
+                    #self.sampler.visualization(train_data, test_data=test_data, iter_idx=i+1, show=False)
 
             # Checkpoint save
             if (i+1) % self.cfg.save_freq == 0:

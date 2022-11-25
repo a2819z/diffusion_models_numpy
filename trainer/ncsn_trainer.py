@@ -42,7 +42,7 @@ class NCSNTrainer(BaseTrainer):
             if (i+1) % self.cfg.log_freq == 0:
                 loss = self.model.loss(perturbed_samples, labels, target, sigmas=sigmas[labels])
                 self.logging(i, loss, elapsed)
-                self.sampler.visualization(train_data, iter_idx=i)
+                self.sampler.visualization(train_data, iter_idx=i+1)
                 if loss < best:
                     best = loss
                     model_state_dict = self.model.state_dict()
