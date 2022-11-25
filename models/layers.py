@@ -47,16 +47,20 @@ class Affine:
         self.dW = None
         self.db = None
 
-    def __call__(self, x):
+    def __call__(self, x, args):
         self.x = x
         out = np.dot(x, self.W) + self.b
         return out
 
-    def backward(self, dout):
+    def backward(self, dout, return_grad=False):
         dx = np.dot(dout, self.W.T)
         self.dW = np.dot(self.x.T, dout)
         self.db = np.sum(dout, axis=0)
-        return dx
+
+        if return_grad:
+            return dx, self.dW, self.db
+        else:
+            return dx
 
 
 class Embed:
@@ -65,28 +69,44 @@ class Embed:
         self.x = None
         self.dW = None
 
-    def __call__(self, x):
+    def __call__(self, x, args):
         self.x = x
-        out = np.dot(x, self.W)
+        out = self.W[x]
+        return out
+
+    def backward(self, dout, return_grad=False):
+        self.dW = np.zeros_like(self.W)
+        np.add.at(self.dW, self.x, dout)
+        dx = 1
+
+        if return_grad:
+            return dx, self.dW
+        else:
+            return dx
+
+class ConditionalAffine:
+    def __init__(self, W, b, cW):
+        self.W = W
+        self.b = b
+        self.cW = cW
+        self.dW = None
+        self.db = None
+        self.dcW = None
+
+        self.affine = Affine(self.W, self.b)
+        self.embed = Embed(self.cW)
+        self.mul = MulLayer()
+
+    def __call__(self, x, c):
+        out = self.affine(x, x)
+        embed = self.embed(c, c)
+        out = self.mul(out, embed)
+
         return out
 
     def backward(self, dout):
-        dx = np.dot(dout, self.W.T)
-        self.dW = np.dot(self.x.T, dout)
+        dx, dy = self.mul.backward(dout)
+        _, self.dcW = self.embed.backward(dy, return_grad=True)
+        dx, self.dW, self.db = self.affine.backward(dx, return_grad=True)
+
         return dx
-
-class ConditoinalAffine:
-    def __init__(self, W, b, embedW):
-        self.W = W
-        self.b = b
-        self.x = None
-        self.t = None
-        self.dW = None
-        self.embedW = None
-
-    def __call__(self, x, t):
-        self.x = x
-        self.t = t
-        out = np.dot(x, self.W) + self.b
-        embed = np.dot(t, self.embedW)
-        return embed * out
