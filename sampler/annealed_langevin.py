@@ -27,8 +27,8 @@ class AnnealedLangevinSampler(BaseSampler):
         
     def log_gradient(self, x, noise_level=None):
         if noise_level is None:
-            labels = np.random.randint(0, len(self.sigmas), (x.shape[0],))
-        scores = self.model(x, labels)
+            noise_level = np.random.randint(0, len(self.sigmas), (x.shape[0],))
+        scores = self.model(x, noise_level)
         scores_norm = np.linalg.norm(scores, axis=-1, ord=2, keepdims=True)
         scores_log1p = scores / (scores_norm + 1e-9) * np.log1p(scores_norm)
 
@@ -44,7 +44,7 @@ class AnnealedLangevinSampler(BaseSampler):
 
         fig = plt.figure(figsize=(16,12))
         ax = fig.subplots()
-        ax.scatter(*train_data.T, color='red', edgecolor='black', s=40)
+        ax.scatter(*train_data.T, color='red', alpha=0.7, edgecolor='black', s=40)
         ax.quiver(*xx.T, *scores_log1p.T, width=0.002, color='black', alpha=0.5)
 
         ax.set_xlim(xlim)
@@ -55,13 +55,17 @@ class AnnealedLangevinSampler(BaseSampler):
         if test_data is not None:
             # 2-1. Gradient in each noise level
             gs = []
-            for noise_level in self.noise_step:
+            for noise_level in range(self.noise_step):
                 _gs = self.log_gradient(xx, noise_level)
-                gs.extend(_gs * self.cfg.sampler.run.n_steps)
+                gs.extend([_gs] * self.cfg.sampler.run.n_steps)
             gs = np.stack(gs)
 
             # 2-2. Sampling
             ys = self.sampling(test_data, **self.cfg.sampler.run)
+
+            # 2-3. Result save
+            ax.scatter(*ys[-1].T, color='blue', alpha=0.7, edgecolor='black', s=40)
+            fig.savefig(self.cfg.work_dir / f'result_{iter_idx}.jpg')
 
             # 2-3. Animation
             anim=make_animation(ys, gs, xx)
