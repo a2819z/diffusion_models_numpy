@@ -1,5 +1,7 @@
 exp_name: 
 
+sigma: 0.01
+
 model:
   type: 'ScoreNet'
 

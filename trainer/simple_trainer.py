@@ -25,7 +25,7 @@ class SimpleTrainer(BaseTrainer):
             start_time = time.time()
             # Data preparation
             batch_idxs = np.random.choice(train_data.shape[0], size=self.cfg.batch_size, replace=False)
-            perturbed_samples, target = self.perturbation(train_data[batch_idxs])
+            perturbed_samples, target = self.perturbation(train_data[batch_idxs], sigma=self.cfg.sigma)
 
             #print(perturbed_samples.shape, target.shape)
             # Backpropagation
