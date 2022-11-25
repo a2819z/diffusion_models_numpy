@@ -1,0 +1,26 @@
+exp_name: 
+
+model:
+  type: 'ScoreNet'
+
+optimizer:
+  type: 'SGD'
+  args:
+    lr: 1e-3
+
+trainer:
+  type: 'SimpleTrainer'
+
+data:
+  type: 'swiss'
+  size: 10000
+  path: 'swiss.pickle'
+
+sampler:
+  type: 'SimpleSampler'
+  run:
+    n_steps: 100
+
+steps: 10_000
+log_freq: 1_000
+save_freq: 1_000

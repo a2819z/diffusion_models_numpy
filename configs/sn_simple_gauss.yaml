@@ -1,0 +1,27 @@
+exp_name: 
+
+model:
+  type: 'ScoreNet'
+
+optimizer:
+  type: 'SGD'
+  args:
+    lr: 1e-3
+
+trainer:
+  type: 'SimpleTrainer'
+
+data:
+  type: 'gauss'
+  size: 1280
+  path: 'gauss.pickle'
+
+sampler:
+  type: 'SimpleSampler'
+  run:
+    n_steps: 1000
+    eps: 0.1
+
+steps: 10_000
+log_freq: 1_000
+save_freq: 1_000

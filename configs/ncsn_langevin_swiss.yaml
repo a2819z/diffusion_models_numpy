@@ -1,16 +1,12 @@
 exp_name: 
-work_dir: 'work_dirs'
+
+sigma_begin: 1
+sigma_end: 0.01
+num_t_steps: 10
 
 model:
-  type: 
-  dims: [2, 128, 128, 2]
-  activ:
-    type: 'ReLU'
-    args:
-  init:
-    type: 'he'
-    args:
-      std: 0.01
+  type: 'NoiseConditionedScoreNet'
+  t_steps: 10
 
 optimizer:
   type: 'SGD'
@@ -18,8 +14,7 @@ optimizer:
     lr: 1e-3
 
 trainer:
-  type:
-  kwargs:
+  type: 'NCSNTrainer'
 
 data:
   type: 'swiss'
@@ -27,13 +22,10 @@ data:
   path: 'swiss.pickle'
 
 sampler:
-  type: 
-  kwargs:
+  type: 'AnnealedLangevinSampler'
   run:
     n_steps: 100
 
 steps: 60_000
-batch_size: 128
-
 log_freq: 10_000
 save_freq: 10_000

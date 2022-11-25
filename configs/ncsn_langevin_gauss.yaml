@@ -1,0 +1,32 @@
+exp_name: 
+
+sigma_begin: 10
+sigma_end: 1
+num_t_steps: 10
+
+model:
+  type: 'NoiseConditionedScoreNet'
+  t_steps: 10
+
+optimizer:
+  type: 'SGD'
+  args:
+    lr: 1e-3
+    #weight_decay: 0.1
+
+trainer:
+  type: 'NCSNTrainer'
+
+data:
+  type: 'gauss'
+  size: 1280
+  path: 'gauss.pickle'
+
+sampler:
+  type: 'AnnealedLangevinSampler'
+  run:
+    n_steps: 100
+
+steps: 60_000
+log_freq: 10_000
+save_freq: 10_000
