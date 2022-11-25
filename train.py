@@ -2,19 +2,14 @@ from argparse import ArgumentParser
 import sys
 from pathlib import Path
 import os.path as osp
-import time
 
-import numpy as np
-import matplotlib.pyplot as plt
-
-from models.models import ScoreNet
-from models import sampling
-from data import sample_batch
+from data import load_data
+from models.builder import build_model
+from trainer.builder import build_trainer
 from optimizers.builder import build_optimizer
 
 from sconf import Config, dump_args, dump_yaml
 from utils.logger import Logger
-from utils.plot import plot_gradients, make_animation
 from utils.utils import save_dict, load_dict
 
 
@@ -51,61 +46,6 @@ def load_checkpoint(fname, model, optim):
     return model, optim, step
 
 
-def perturbation(samples, sigma=0.01):
-    noise = np.random.normal(size=samples.shape)
-    perturbed_samples = samples + noise * sigma
-    target = -noise / sigma
-
-    return perturbed_samples, target
-
-
-def train(args, cfg, model, optimizer, data, logger):
-    elapsed = 0
-    for i in range(cfg.steps):
-        start_time = time.time()
-        # Data preparation
-        batch_idxs = np.random.choice(data.shape[0], size=cfg.batch_size, replace=False)
-        perturbed_samples, target = perturbation(data[batch_idxs])
-
-        #print(perturbed_samples.shape, target.shape)
-        # Backpropagation
-        grad = model.gradient(perturbed_samples, target)
-
-        # Update
-        optimizer.update(model.params, grad)
-        end_time = time.time()
-        elapsed += end_time - start_time
-
-        # Logging
-        if (i+1) % cfg.log_freq == 0:
-            loss = model.loss(perturbed_samples, target)
-            #print(model(perturbed_samples)[0], target[0])
-            logger.info(
-                f'Iteration: {i+1:5d}/{cfg.steps} ({int((i+1)/cfg.steps*100)}%) \
-                  | Loss: {loss:6.4f}\
-                  | elapsed: {elapsed:6.2f}s \
-                  | ETA: {elapsed/(i+1)*cfg.steps - elapsed:6.2f}s'
-            )
-            #plot_gradients(model, data)
-            #plt.show()
-
-        # Checkpoint save
-        if (i+1) % cfg.save_freq == 0:
-            model_state_dict = model.state_dict()
-            optim_state_dict = optimizer.state_dict()
-            save_checkpoint(cfg.work_dir / 'checkpoint', i, model_state_dict, optim_state_dict)
-            
-
-    plot_gradients(model, data)
-    plt.show()
-
-    x = np.random.normal(size=(500, 2))
-    samples = sampling.simple(model, x, n_steps=300)
-    anim = make_animation(samples, model, data)
-    anim.save(cfg.work_dir / "sample.gif", writer='imagemagick')
-    plt.close()
-
-
 if __name__ == "__main__":
     args, cfg = parse_args_and_config()
 
@@ -117,8 +57,11 @@ if __name__ == "__main__":
     logger.info('Args:\n{}'.format(args_str))
     logger.info('Configs:\n{}'.format(cfg.dumps()))
 
-    model = ScoreNet(cfg.model)
+    model = build_model(cfg.model)
     optimizer = build_optimizer(cfg.optimizer)
-    data = sample_batch(10**4, noise=1.)
+    train_data = load_data(type=cfg.data.type, size=10**4, noise=1., fname=cfg.data.path)
+    test_data = load_data(type=cfg.data.type, size=500, noise=1., fname=cfg.data.path, test=True)
 
-    train(args, cfg, model, optimizer, data, logger)
+    kwargs = {'cfg': cfg, 'model': model, 'optimizer': optimizer, 'logger': logger}
+    trainer = build_trainer(cfg.trainer, kwargs)
+    trainer.train(train_data, test_data)

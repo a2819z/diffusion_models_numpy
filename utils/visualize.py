@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 
 
-def plot_gradients(model, data, xlim=(-1.5, 2.0), ylim=(-1.5, 2.0), nx=50, ny=50, plot_scatter=True, alpha=1.0):
+def plot_lines(model, data, xlim=(-1.5, 2.0), ylim=(-1.5, 2.0), nx=50, ny=50, plot_scatter=True, alpha=1.0):
     xx = np.stack(np.meshgrid(np.linspace(*xlim, nx), np.linspace(*ylim, ny)), axis=-1).reshape(-1, 2)
     scores = model(xx)
     scores_norm = np.linalg.norm(scores, axis=-1, ord=2, keepdims=True)
@@ -20,28 +20,36 @@ def plot_gradients(model, data, xlim=(-1.5, 2.0), ylim=(-1.5, 2.0), nx=50, ny=50
     
     return quiver
 
-def make_animation(Xt, model, data):
-    X0 = np.tile(Xt[:1], (10, 1, 1))
+
+def make_animation(Xt, Gs, xx):
+    X0 = np.tile(Xt[:1], (10, 1, 1)) # For delay
     Xf = np.tile(Xt[-1:], (10, 1, 1))
-    #Xt = np.reshape(Xt, (-1, 1, 2))
     Xt = np.concatenate([X0, Xt, Xf])
+
+    if Gs.shape[0] != 1:
+        G0 = np.tile(Gs[:1], (10, 1, 1))
+        Gf = np.tile(Gs[:1], (10, 1, 1))
+        Gs = np.concatenate([G0, Gs, Gf])
 
     fig = plt.figure(figsize=(14, 10))
     ax = plt.gca()
 
-    xlim = (Xt[..., 0].min() * 0.7, Xt[..., 0].max() * 0.7)
-    ylim = (Xt[..., 1].min() * 0.7, Xt[..., 1].max() * 0.7)
-
-    quiver = plot_gradients(model, data, xlim=xlim, ylim=ylim, nx=35, ny=35, plot_scatter=False, alpha=0.5)
+    xlim = (xx[..., 0].min(), xx[..., 0].max())
+    ylim = (xx[..., 1].min(), xx[..., 1].max())
+    #xlim = (Gs[..., 0].min() * 0.7, Gs[..., 0].max() * 0.7)
+    #ylim = (Gs[..., 1].min() * 0.7, Gs[..., 1].max() * 0.7)
 
     ax.axis("off")
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
 
     scatter = ax.scatter(Xt[0, :, 0], Xt[0, :, 1])
+    quiver = ax.quiver(*xx.T, *Gs[0].T, width=0.002, color='black')
 
     def animate(i):
         scatter.set_offsets(Xt[i])
+        if Gs.shape[0] != 1:
+            quiver.set_UVC(*Gs[i].T)
         return (quiver, scatter,)
 
     anim = animation.FuncAnimation(
