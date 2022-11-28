@@ -1,0 +1,7 @@
+matplotlib
+munch
+numpy
+ruamel.yaml
+scikit-learn
+scipy
+tqdm
