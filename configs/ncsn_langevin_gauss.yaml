@@ -1,18 +1,18 @@
 exp_name: 
 
-sigma_begin: 20
-sigma_end: 1
-num_t_steps: 10
+sigma_begin: 5
+sigma_end: 0.05
+num_t_steps: 10 
 
 model:
   type: 'NoiseConditionedScoreNet'
   t_steps: 10
 
 optimizer:
-  type: 'AdamW'
+  type: 'Adam'
   args:
     lr: 0.001
-    weight_decay: 0.0001
+    #weight_decay: 0.0001
 
 trainer:
   type: 'NCSNTrainer'
@@ -25,8 +25,8 @@ data:
 sampler:
   type: 'AnnealedLangevinSampler'
   run:
-    n_steps: 100
-    eps: 0.1
+    n_steps: 10
+    eps: 0.001
 
 steps: 60_000
 log_freq: 10_000

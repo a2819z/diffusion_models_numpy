@@ -1,12 +1,12 @@
 exp_name: 
 
-sigma: 0.01
+sigma: 0.1
 
 model:
   type: 'ScoreNet'
 
 optimizer:
-  type: 'Adam'
+  type: 'SGD'
   args:
     lr: 1e-3
 
@@ -14,14 +14,15 @@ trainer:
   type: 'SimpleTrainer'
 
 data:
-  type: 'swiss'
-  size: 10000
-  path: 'swiss.pickle'
+  type: 'circle'
+  size: 1280
+  path: 'circle.pickle'
 
 sampler:
   type: 'LangevinSampler'
   run:
     n_steps: 100
+    eps: 0.001
 
 steps: 60_000
 log_freq: 6_000

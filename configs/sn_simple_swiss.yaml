@@ -23,6 +23,6 @@ sampler:
   run:
     n_steps: 100
 
-steps: 10_000
-log_freq: 1_000
-save_freq: 1_000
+steps: 60_000
+log_freq: 6_000
+save_freq: 6_000

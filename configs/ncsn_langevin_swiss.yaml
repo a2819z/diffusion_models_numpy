@@ -9,7 +9,7 @@ model:
   t_steps: 10
 
 optimizer:
-  type: 'SGD'
+  type: 'Adam'
   args:
     lr: 1e-3
 
@@ -27,5 +27,5 @@ sampler:
     n_steps: 100
 
 steps: 60_000
-log_freq: 10_000
-save_freq: 10_000
+log_freq: 6_000
+save_freq: 6_000
