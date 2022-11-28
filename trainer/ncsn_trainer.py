@@ -48,7 +48,7 @@ class NCSNTrainer(BaseTrainer):
                     model_state_dict = self.model.state_dict()
                     optim_state_dict = self.optimizer.state_dict()
                     self.save_checkpoint(self.cfg.work_dir / 'checkpoint', i+1, model_state_dict, optim_state_dict, best=True)
-                    #self.sampler.visualization(train_data, test_data=test_data, iter_idx=i)
+                    #self.sampler.visualization(train_data, test_data=test_data, iter_idx=i+1)
 
             # Checkpoint save
             if (i+1) % self.cfg.save_freq == 0:
